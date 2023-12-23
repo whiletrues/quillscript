@@ -1,7 +1,8 @@
 use core::fmt;
-use std::fmt::write;
 
-
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Token {
 
     LeftParen,
@@ -49,7 +50,7 @@ pub enum Token {
 
     Space,
     Line,
-    Invalid(String)
+    Invalid(i32, i32, String)
 }
 
 
@@ -77,7 +78,7 @@ impl fmt::Display for Token {
             Token::LessEqual =>write!(f, "<="),
             Token::Identifier(_) =>write!(f, "identifier"),
             Token::String(_) =>write!(f, "string"),
-            Token::Number(f64) =>write!(f, "number"),
+            Token::Number(_) =>write!(f, "number"),
             Token::Class => write!(f, "class"),
             Token::Else =>write!(f, "else"),
             Token::False =>write!(f, "false"),
@@ -95,9 +96,9 @@ impl fmt::Display for Token {
             Token::Var =>write!(f, "var"),
             Token::While =>write!(f, "while"),
             Token::Eof =>write!(f, "eof"),
-            Token::Invalid(_) =>write!(f, "invalid"),
-            Token::Space => todo!(),
-            Token::Line => todo!(),
+            Token::Invalid(_,_,_) =>write!(f, "invalid"),
+            Token::Space => write!(f, "space"),
+            Token::Line => write!(f, "line"),
         }
     }
 }
