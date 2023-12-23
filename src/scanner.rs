@@ -67,11 +67,72 @@ impl Scanner {
                 }
                 ' ' => Token::Space,
                 '\n' => Token::Line,
-                _ => Token::Invalid("Unknow token".to_string()),
+                _ => {
+                    if self.is_digit(char) {
+                        let mut number = String::new();
+
+                        number.push(char);
+
+                        let num: String = char_indices
+                            .by_ref()
+                            .take_while(|(_pos, c)| self.is_digit(*c) || *c == '.')
+                            .map(|(_pos, c)| c)
+                            .collect();
+
+                        number.push_str(&num);
+
+                        Token::Number(number.parse::<f64>().unwrap())
+                    } else if self.is_alpha(char) {
+                        let mut identifier = String::new();
+
+                        identifier.push(char);
+
+                        let ident: String = char_indices
+                            .by_ref()
+                            .take_while(|(_pos, c)| self.is_alpha_numeric(*c))
+                            .map(|(_pos, c)| c)
+                            .collect();
+
+                        identifier.push_str(&ident);
+
+                        match identifier.as_str() {
+                            "true" => Token::True,
+                            "false" => Token::False,
+                            "and" => Token::And,
+                            "or" => Token::Or,
+                            "if" => Token::If,
+                            "else" => Token::Else,
+                            "for" => Token::For,
+                            "while" => Token::While,
+                            "print" => Token::Print,
+                            "var" => Token::Var,
+                            "func" => Token::Func,
+                            "return" => Token::Return,
+                            "class" => Token::Class,
+                            "super" => Token::Super,
+                            "nil" => Token::Nil,
+                            _ => Token::Identifier(identifier)
+                        }
+                    } else {
+                        Token::Invalid("Unknow token".to_string())
+                    }
+                }
             };
             self.tokens.push(token);
         }
 
         return &self.tokens;
+    }
+
+    fn is_alpha_numeric(&self, char: char ) -> bool {
+        self.is_alpha(char) || self.is_digit(char)    
+    }
+
+    fn is_digit(&self, char: char) -> bool {
+        char >= '0' && char <= '9'
+    }
+
+    fn is_alpha(&self, char: char) -> bool {
+        char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' || char == '_'
     }
 }

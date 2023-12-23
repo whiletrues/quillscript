@@ -1,4 +1,5 @@
 use core::fmt;
+use std::fmt::write;
 
 
 pub enum Token {
@@ -24,14 +25,17 @@ pub enum Token {
     Less, 
     LessEqual,
 
-    Identifier(), 
+    Identifier(String), 
     String(String), 
-    Number(),
+    Number(f64),
+
+    Class,
     Else, 
     False, 
     Func, 
     For, 
-    If, 
+    If,
+    And, 
     Nil, 
     Or,
     Print, 
@@ -71,14 +75,16 @@ impl fmt::Display for Token {
             Token::GreaterEqual =>write!(f, ">="),
             Token::Less =>write!(f, "<"),
             Token::LessEqual =>write!(f, "<="),
-            Token::Identifier() =>write!(f, "identifier"),
+            Token::Identifier(_) =>write!(f, "identifier"),
             Token::String(_) =>write!(f, "string"),
-            Token::Number() =>write!(f, "number"),
+            Token::Number(f64) =>write!(f, "number"),
+            Token::Class => write!(f, "class"),
             Token::Else =>write!(f, "else"),
             Token::False =>write!(f, "false"),
             Token::Func =>write!(f, "func"),
             Token::For =>write!(f, "for"),
             Token::If =>write!(f, "if"),
+            Token::And => write!(f, "and"),
             Token::Nil =>write!(f, "nil"),
             Token::Or =>write!(f, "or"),
             Token::Print =>write!(f, "print"),

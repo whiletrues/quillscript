@@ -5,7 +5,7 @@ use scanner::Scanner;
 
 fn main() {
     
-    let input = String::from("\"its a string\"");
+    let input = String::from("if 4554 {");
 
     let mut scanner = Scanner::new(input.clone());
 
