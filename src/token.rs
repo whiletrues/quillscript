@@ -1,8 +1,6 @@
 use core::fmt;
 
-#[derive(Clone)]
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Token {
 
     LeftParen,
@@ -10,13 +8,13 @@ pub enum Token {
     LeftBrace, 
     RightBrace,
     Comma, 
-    Dot, 
-    Minus, 
-    Plus, 
+    Dot,  
     Semicolon, 
+ 
+    Plus,
+    Minus, 
     Slash, 
     Star,
-
     Bang, 
     BangEqual,
     Equal, 
@@ -52,7 +50,6 @@ pub enum Token {
     Line,
     Invalid(i32, i32, String)
 }
-
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

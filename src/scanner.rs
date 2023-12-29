@@ -81,16 +81,13 @@ impl Scanner {
                 _ => {
                     if self.is_digit(char) {
                         let mut number = String::new();
-
+                        
                         number.push(char);
 
-                        let num: String = char_indices
-                            .by_ref()
-                            .take_while(|(_pos, c)| self.is_digit(*c) || *c == '.')
-                            .map(|(_pos, c)| c)
-                            .collect();
-
-                        number.push_str(&num);
+                        while let Some((position, num)) = char_indices
+                            .next_if(|(_pos, c)| self.is_digit(*c) || *c == '.') {                        
+                                number.push(num);
+                        }
 
                         Token::Number(number.parse::<f64>().unwrap())
                     } else if self.is_alpha(char) {
@@ -157,7 +154,7 @@ mod tests {
         let source = String::from("1283293");
         let mut scanner = Scanner::new(source);
 
-        let tokens = scanner.scan();
+        let tokens: &Vec<Token> = scanner.scan();
 
         let number_token = tokens.first().unwrap();
 
