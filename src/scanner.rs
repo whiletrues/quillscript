@@ -17,8 +17,8 @@ impl Scanner {
         let mut line = 1;
 
         let mut char_indices = self.source.char_indices().peekable();
-
         while let Some((position, char)) = char_indices.next() {
+            print!("{}", char);
             let token = match char {
                 '(' => Token::LeftParen,
                 ')' => Token::RightParen,
@@ -81,12 +81,13 @@ impl Scanner {
                 _ => {
                     if self.is_digit(char) {
                         let mut number = String::new();
-                        
+
                         number.push(char);
 
-                        while let Some((position, num)) = char_indices
-                            .next_if(|(_pos, c)| self.is_digit(*c) || *c == '.') {                        
-                                number.push(num);
+                        while let Some((_, num)) =
+                            char_indices.next_if(|(_pos, c)| self.is_digit(*c) || *c == '.')
+                        {
+                            number.push(num);
                         }
 
                         Token::Number(number.parse::<f64>().unwrap())
@@ -95,13 +96,11 @@ impl Scanner {
 
                         identifier.push(char);
 
-                        let ident: String = char_indices
-                            .by_ref()
-                            .take_while(|(_pos, c)| self.is_alpha_numeric(*c))
-                            .map(|(_pos, c)| c)
-                            .collect();
-
-                        identifier.push_str(&ident);
+                        while let Some((_, c)) =
+                            char_indices.next_if(|(_pos, c)| self.is_alpha_numeric(*c))
+                        {
+                            identifier.push(c);
+                        }
 
                         match identifier.as_str() {
                             "true" => Token::True,
@@ -197,10 +196,6 @@ mod tests {
 
         let number_token = tokens.first().unwrap();
 
-        assert_eq!(
-            number_token,
-            &Token::String("a string".to_string())
-        )
+        assert_eq!(number_token, &Token::String("a string".to_string()))
     }
-
 }
