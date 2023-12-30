@@ -1,51 +1,80 @@
+mod expression;
+mod parser;
 mod scanner;
 pub mod token;
-mod parser;
-mod expression;
 
-use parser::{Parser, parse};
+use std::io;
+
+use parser::{parse, Parser};
 use scanner::Scanner;
 
 use crate::expression::Expression;
 
 fn main() {
-    
-    let input = String::from("(2*3)+(4*2)");
+    println!("Quillscript REPL (type 'exit' to stop):");
 
-    let mut scanner = Scanner::new(input);
+    loop {
+        let mut input = String::new();
 
-    let tokens = scanner.scan();
+        match io::stdin().read_line(&mut input) {
+            Ok(_) => {
+                input = input.trim().to_string(); // Remove whitespace and convert to String
+                if input.to_lowercase().trim() == "exit" {
+                    break; // Break the loop if the user types 'exit'
+                }
+                
+                io::stdin().read_line(&mut input).unwrap();
 
-    let mut parser = Parser {
-        tokens: tokens.clone(),
-        position: 0
-    };
+                let mut scanner = Scanner::new(input);
 
-    let expression = parse(&mut parser);
-    printAst(expression);
+                let tokens = scanner.scan();
+
+                let mut parser = Parser {
+                    tokens: tokens.clone(),
+                    position: 0,
+                };
+
+                let expression = parse(&mut parser);
+                print_ast(expression);
+            }
+            Err(error) => {
+                println!("Error reading input: {}", error);
+                break; // Break the loop on error
+            }
+        }
+    }
 }
 
-
-fn printAst(expression: Expression) {
+fn print_ast(expression: Expression) {
     match expression {
         Expression::Grouping(expr) => {
-            print!("(");
-            printAst(*expr);
-            print!(")");
-        },
-        Expression::Binary(left, operator, right) => {
-            printAst(*left);
-            print!("{}", operator);
-            printAst(*right);
-        },
-        Expression::Number(num) => {
-            print!("{}",num)
-        },
-        Expression::Boolean(boolean) => print!("{}", boolean),
-        Expression::Unary(_,right) => {
-            print!("unary");
-            printAst(*right);
+            println!("Grouping (");
+            print_ast(*expr);
+            println!(")");
         }
-        _ => println!("other")
+        Expression::Binary(left, operator, right) => {
+            print_ast(*left);
+            println!(" operator {}", operator);
+            print_ast(*right);
+        }
+        Expression::Variable(var) => println!("Variable ( name {})", var),
+        Expression::Number(num) => {
+            println!("{}", num)
+        }
+        Expression::Boolean(boolean) => println!("{}", boolean),
+        Expression::Logical(left, operator, right) => {
+            print_ast(*left);
+            println!(" operator {}", operator);
+            print_ast(*right);
+        }
+        Expression::Unary(operator, right) => {
+            println!("operator {}", operator);
+            print_ast(*right);
+        },
+        Expression::Assign(variable, right) => {
+            println!("assign {}", variable);
+            print_ast(*right);
+        },
+        _ => println!("other"),
     }
 }

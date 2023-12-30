@@ -18,7 +18,6 @@ impl Scanner {
 
         let mut char_indices = self.source.char_indices().peekable();
         while let Some((position, char)) = char_indices.next() {
-            print!("{}", char);
             let token = match char {
                 '(' => Token::LeftParen,
                 ')' => Token::RightParen,
@@ -73,7 +72,7 @@ impl Scanner {
                         ),
                     }
                 }
-                ' ' => Token::Space,
+                ' ' => continue,
                 '\n' => {
                     line += 1;
                     Token::Line
