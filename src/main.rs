@@ -1,12 +1,12 @@
 mod expression;
 mod parser;
-mod scanner;
+mod lexer;
 pub mod token;
 
 use std::io;
 
 use parser::{parse, Parser};
-use scanner::Scanner;
+use lexer::Lexer;
 
 use crate::expression::Expression;
 
@@ -25,12 +25,12 @@ fn main() {
                 
                 io::stdin().read_line(&mut input).unwrap();
 
-                let mut scanner = Scanner::new(input);
+                let mut Lexer = Lexer::new(&input);
 
-                let tokens = scanner.scan();
+                let Kinds = Lexer.scan();
 
                 let mut parser = Parser {
-                    tokens: tokens.clone(),
+                    Kinds: Kinds.clone(),
                     position: 0,
                 };
 

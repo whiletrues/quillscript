@@ -2,7 +2,7 @@ use core::panic;
 
 use crate::{
     expression::{BinaryOperator, Expression, UnaryOperator, LogicalOperator},
-    token::Token,
+    Kind,
 };
 
 #[derive(PartialEq, PartialOrd)]
@@ -20,19 +20,19 @@ pub enum Precedence {
 }
 
 pub struct Parser {
-    pub tokens: Vec<Token>,
+    pub Kinds: Vec<Kind>,
     pub position: usize,
 }
 
 impl Parser {
-    pub fn next(&mut self) -> &Token {
-        let token = self.tokens.get(self.position).unwrap_or(&Token::Eof);
+    pub fn next(&mut self) -> &Kind {
+        let Kind = self.Kinds.get(self.position).unwrap_or(&Kind::Eof);
         self.position = self.position + 1;
-        return token;
+        return Kind;
     }
 
-    pub fn peek(&mut self) -> &Token {
-        return self.tokens.get(self.position).unwrap_or(&Token::Eof);
+    pub fn peek(&mut self) -> &Kind {
+        return self.Kinds.get(self.position).unwrap_or(&Kind::Eof);
     }
 }
 
@@ -48,7 +48,7 @@ fn parse_expr(parser: &mut Parser, precedence: Precedence) -> Expression {
         expr = parse_prefix(parser)
     }
 
-    while parser.peek() != &Token::Eof  {
+    while parser.peek() != &Kind::Eof  {
         if precedence >= get_precedence(parser.peek()) {
             break;
         }
@@ -66,40 +66,40 @@ fn parse_expr(parser: &mut Parser, precedence: Precedence) -> Expression {
 
 fn is_infix(parser: &mut Parser) -> bool {
     match parser.peek() {
-        Token::Plus
-        | Token::Minus
-        | Token::Slash
-        | Token::Star
-        | Token::Bang
-        | Token::BangEqual
-        | Token::Equal
-        | Token::EqualEqual
-        | Token::Greater
-        | Token::GreaterEqual
-        | Token::Less
-        | Token::LessEqual
-        | Token::And
-        | Token::Or => true,
+        Kind::Plus
+        | Kind::Minus
+        | Kind::Slash
+        | Kind::Star
+        | Kind::Bang
+        | Kind::BangEqual
+        | Kind::Equal
+        | Kind::EqualEqual
+        | Kind::Greater
+        | Kind::GreaterEqual
+        | Kind::Less
+        | Kind::LessEqual
+        | Kind::And
+        | Kind::Or => true,
         _ => false
     }
 }
 
 fn parse_infix(parser: &mut Parser, left: Expression) -> Expression {
     match parser.peek() {
-        Token::Plus
-        | Token::Minus
-        | Token::Slash
-        | Token::Star
-        | Token::Bang
-        | Token::BangEqual
-        | Token::EqualEqual
-        | Token::Greater
-        | Token::GreaterEqual
-        | Token::Less
-        | Token::LessEqual => parse_binary(parser, left),
-        Token::Equal => parse_assignment(parser, left),
-        Token::And | Token::Or => parse_logical(parser, left),
-        _ => panic!("unknow infix token")
+        Kind::Plus
+        | Kind::Minus
+        | Kind::Slash
+        | Kind::Star
+        | Kind::Bang
+        | Kind::BangEqual
+        | Kind::EqualEqual
+        | Kind::Greater
+        | Kind::GreaterEqual
+        | Kind::Less
+        | Kind::LessEqual => parse_binary(parser, left),
+        Kind::Equal => parse_assignment(parser, left),
+        Kind::And | Kind::Or => parse_logical(parser, left),
+        _ => panic!("unknow infix Kind")
     }
 }
 
@@ -112,7 +112,7 @@ fn parse_logical(parser: &mut Parser, left: Expression) -> Expression {
 
 fn parse_assignment(parser: &mut Parser, left: Expression) -> Expression {
 
-    if parser.next() != &Token::Equal {
+    if parser.next() != &Kind::Equal {
         panic!("expect equal for assignment")
     }
 
@@ -125,36 +125,36 @@ fn parse_assignment(parser: &mut Parser, left: Expression) -> Expression {
 
 fn is_prefix(parser: &mut Parser) -> bool {
     match parser.peek() {
-        Token::String(_)
-        | Token::Number(_)
-        | Token::True
-        | Token::False  
-        | Token::Minus
-        | Token::Bang
-        | Token::Identifier(_)
-        | Token::LeftParen => true,
+        Kind::String(_)
+        | Kind::Number(_)
+        | Kind::True
+        | Kind::False  
+        | Kind::Minus
+        | Kind::Bang
+        | Kind::Identifier(_)
+        | Kind::LeftParen => true,
         _ => false,    
     }
 }
 
 fn parse_prefix(parser: &mut Parser) -> Option<Expression> {
     match parser.peek() {
-        Token::String(_)
-        | Token::Number(_)
-        | Token::True
-        | Token::Identifier(_)
-        | Token::False => Some(parse_primary(parser)),
-        | Token::Minus | Token::Bang => Some(parse_unary(parser)),
-        | Token::LeftParen => Some(parse_grouping(parser)),
+        Kind::String(_)
+        | Kind::Number(_)
+        | Kind::True
+        | Kind::Identifier(_)
+        | Kind::False => Some(parse_primary(parser)),
+        | Kind::Minus | Kind::Bang => Some(parse_unary(parser)),
+        | Kind::LeftParen => Some(parse_grouping(parser)),
         _ => None,
     }
 }
 
 fn parse_grouping(parser: &mut Parser) -> Expression {
     let grouping = match parser.next() {
-        Token::LeftParen => {
+        Kind::LeftParen => {
             let expr = parse_expr(parser, Precedence::None);
-            if parser.next().clone() != Token::RightParen {
+            if parser.next().clone() != Kind::RightParen {
                 panic!()
             }
             expr
@@ -180,90 +180,90 @@ fn parse_unary(parser: &mut Parser) -> Expression {
 
 fn parse_primary(parser: &mut Parser) -> Expression {
     return match parser.next() {
-        Token::Number(number) => Expression::Number(number.clone()),
-        Token::String(string) => Expression::String(string.clone()),
-        Token::True => Expression::Boolean(true),
-        Token::False => Expression::Boolean(false),
-        Token::Identifier(identifier) => Expression::Variable(identifier.clone()),
+        Kind::Number(number) => Expression::Number(number.clone()),
+        Kind::String(string) => Expression::String(string.clone()),
+        Kind::True => Expression::Boolean(true),
+        Kind::False => Expression::Boolean(false),
+        Kind::Identifier(identifier) => Expression::Variable(identifier.clone()),
         _ => panic!(),
     };
 }
 
-fn get_precedence(token: &Token) -> Precedence {
-    return match token {
-        Token::Equal => Precedence::Assign,
+fn get_precedence(Kind: &Kind) -> Precedence {
+    return match Kind {
+        Kind::Equal => Precedence::Assign,
 
-        Token::EqualEqual => Precedence::Equality,
-        Token::BangEqual => Precedence::Equality,
+        Kind::EqualEqual => Precedence::Equality,
+        Kind::BangEqual => Precedence::Equality,
 
-        Token::Less => Precedence::Comparison,
-        Token::LessEqual => Precedence::Comparison,
-        Token::Greater => Precedence::Comparison,
-        Token::GreaterEqual => Precedence::Comparison,
+        Kind::Less => Precedence::Comparison,
+        Kind::LessEqual => Precedence::Comparison,
+        Kind::Greater => Precedence::Comparison,
+        Kind::GreaterEqual => Precedence::Comparison,
 
-        Token::Minus => Precedence::Term,
-        Token::Plus => Precedence::Term,
+        Kind::Minus => Precedence::Term,
+        Kind::Plus => Precedence::Term,
 
-        Token::Star => Precedence::Factor,
-        Token::Slash => Precedence::Factor,
+        Kind::Star => Precedence::Factor,
+        Kind::Slash => Precedence::Factor,
 
-        Token::Bang => Precedence::Unary,
-        Token::LeftParen => Precedence::Call,
+        Kind::Bang => Precedence::Unary,
+        Kind::LeftParen => Precedence::Call,
 
-        Token::And => Precedence::And,
-        Token::Or => Precedence::Or,
+        Kind::And => Precedence::And,
+        Kind::Or => Precedence::Or,
         _ => Precedence::None,
     };
 }
 
 fn get_logical_operator(parser: &mut Parser) -> LogicalOperator {
     return match parser.next() {
-        Token::And => LogicalOperator::And,
-        Token::Or => LogicalOperator::Or,
+        Kind::And => LogicalOperator::And,
+        Kind::Or => LogicalOperator::Or,
         _ => todo!(),
     }
 }
 
 fn get_unary_operator(parser: &mut Parser) -> UnaryOperator {
     return match parser.next() {
-        Token::Minus => UnaryOperator::Minus,
-        Token::Bang => UnaryOperator::Bang,
+        Kind::Minus => UnaryOperator::Minus,
+        Kind::Bang => UnaryOperator::Bang,
         _ => todo!()
     }
 }
 
 fn get_binary_operator(parser: &mut Parser) -> BinaryOperator {
     return match parser.next() {
-        Token::BangEqual => BinaryOperator::BangEqual,
-        Token::Less => BinaryOperator::Less,
-        Token::LessEqual => BinaryOperator::LessEqual,
-        Token::Greater => BinaryOperator::Greater,
-        Token::GreaterEqual => BinaryOperator::GreaterEqual,
-        Token::Minus => BinaryOperator::Minus,
-        Token::Plus => BinaryOperator::Plus,
-        Token::Star => BinaryOperator::Star,
-        Token::Slash => BinaryOperator::Slash,
-        Token::EqualEqual => BinaryOperator::EqualEqual,
+        Kind::BangEqual => BinaryOperator::BangEqual,
+        Kind::Less => BinaryOperator::Less,
+        Kind::LessEqual => BinaryOperator::LessEqual,
+        Kind::Greater => BinaryOperator::Greater,
+        Kind::GreaterEqual => BinaryOperator::GreaterEqual,
+        Kind::Minus => BinaryOperator::Minus,
+        Kind::Plus => BinaryOperator::Plus,
+        Kind::Star => BinaryOperator::Star,
+        Kind::Slash => BinaryOperator::Slash,
+        Kind::EqualEqual => BinaryOperator::EqualEqual,
         _ => todo!(),
     };
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Parser, Token, parse};
+    use super::{Parser, Kind, parse};
 
     #[test]
     pub fn test_parse_grouping() {
-        let tokens: Vec<Token> = vec![
-            Token::LeftParen,
-            Token::Number(10.3),
-            Token::Plus,
-            Token::Number(23.0),
-            Token::RightParen,
+        let Kinds: Vec<Kind> = vec![
+            Kind::LeftParen,
+            Kind::Number(10.3),
+            Kind::Plus,
+            Kind::Number(23.0),
+            Kind::RightParen,
         ];
 
         let mut parser = Parser {
-            tokens: tokens.clone(),
+            Kinds: Kinds.clone(),
             position: 0
         };
 
